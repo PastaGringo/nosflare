@@ -13,7 +13,8 @@ relayInfo_pubkey=""
 relayInfo_contact=""
 relayIcon_URL=""
 # Set to 1 if you need to hide your info during the wrangler whoami & CF API KEY display (maybe you want to record your session script?)
-hide_whoami_infos=0
+hide_whoami_infos=1
+debug=0
 ##################################################################################################
 # Script variables, please do not modify if you don't know what you are doing
 pwd=$(pwd)
@@ -27,7 +28,7 @@ path_dist_worker_js="$path_nosflare/dist/worker.js"
 nosflare_remote_gh_repo="https://github.com/PastaGringo/nosflare"
 nosflare_gh_repo_owner=$(echo $nosflare_remote_gh_repo | cut -d"/" -f 4)
 nosflare_remote_gh_repo_git="$nosflare_remote_gh_repo.git"
-nosflare_kv_title="worker-kvdb"
+nosflare_kv_title="nosflare-kvdb"
 relayDOMAIN=$(echo $relayURL | cut -d"." -f 2,3)
 ##################################################################################################
 function echolor()
@@ -54,6 +55,8 @@ EOF
 }
 ##################################################################################################
 clear
+today=$(date +%Y-%m-%d)
+echo 
 echo "-------------------------- NosflareDeploy v1.0 ---------------------------"
 echo "    _   __           ______                ____             __           ";
 echo "   / | / /___  _____/ __/ /___  ____ ___  / __ \___  ____  / /___  __  __";
@@ -62,6 +65,7 @@ echo " / /|  / /_/ (__  ) __/ / /_/ / /  /  __/ /_/ /  __/ /_/ / / /_/ / /_/ / "
 echo "/_/ |_/\____/____/_/ /_/\__,_/_/   \___/_____/\___/ .___/_/\____/\__, /  ";
 echo "                                                 /_/            /____/   ";
 echo "-------------------------- NosflareDeploy v1.0 ---------------------------"
+echo "                                                                $today    "
 echo
 echolor "Checking if basic depedencies are available ..."
 echo
@@ -203,7 +207,7 @@ if test -d $path_nosflare; then
         echo "Done ✅"
     fi
 else
-    echo ">>> $path_nosflare not found ⚠️  (first time install?)"
+    echo ">>> $path_nosflare not found ⚠️ (first time install?)"
     echo
     echolor "Would you like to clone nosflare from $nosflare_remote_gh_repo to $path_nosflare ?"
     echo
@@ -216,10 +220,6 @@ else
     echolor "Installing @noble/curves ..."
     npm install --silent --prefix $path_nosflare @noble/curves
     echo ">>> Installation done ✅"
-    # echo
-    # echo "Installing esbuild ..."
-    # npm install --silent --prefix $path_nosflare esbuild
-    # echo ">>> Installation done ✅"
     echo
     echolor "Installing wrangler ..."
     npm install --silent --prefix $path_nosflare wrangler
@@ -228,21 +228,6 @@ fi
 echo
 echolor "Verifying if depedencies are locally installed ..."
 echo
-# echo "Checking esbuild ..."
-# if ! command -v esbuild &> /dev/null
-# then
-#     echo ">>> esbuild could not be found in bash source. Looking into ./node_modules/.bin/ ... "
-#     esbuild_version=$($path_esbuild --version)
-#     if [ -z "${esbuild_version}" ]; then
-#         echo "❌ An error occured during the get version of $path_esbuild. Exiting. Bye"
-#         echo
-#         exit 1
-#     var_missing=1
-#     else
-#         echo ">>> Found esbuild v$esbuild_version ✅"
-#     fi
-# fi
-# echo
 echolor "Checking wrangler ..."
 #if ! command -v $path_wrangler &> /dev/null
 if command -v $path_wrangler &> /dev/null
@@ -292,16 +277,31 @@ fi
 echo
 echolor "Looking for the KV-ID for KV with title $nosflare_kv_title ..."
 kvs_json=$($path_wrangler kv:namespace list)
-nosflare_cf_kv_id=$(echo $kvs_json | jq -r '.[] | select(.title | startswith("worker-kvdb"))' | jq -r .id)
-nosflare_cf_kv_title=$(echo $kvs_json | jq -r '.[] | select(.title | startswith("worker-kvdb"))' | jq -r .title)
-echo ">>> Nosflare KVdb title    : $nosflare_cf_kv_title"
-echo ">>> Nosflare KVdb id       : $nosflare_cf_kv_id"
+nosflare_cf_kv_id=$(echo $kvs_json | jq -r '.[] | select(.title | startswith("'"$nosflare_kv_title"'"))' | jq -r .id)
+nosflare_cf_kv_title=$(echo $kvs_json | jq -r '.[] | select(.title | startswith("'"$nosflare_kv_title"'"))' | jq -r .title)
+if [[ $debug -eq 1 ]]; then
+    echo "[DEBUG] Listing KV namespace:"
+    $path_wrangler kv:namespace list
+    echo "[DEBUG] $nosflare_cf_kv_title -> $nosflare_cf_kv_id"
+    echo "[DEBUG] End, Bye."
+    exit 1
+fi
+if [ -z "${nosflare_cf_kv_id}" ]; then
+    echo '❌ Cannot get the KV namespace ID'
+    echo "Please, run the script one more time in case of Cloudflare timeout (good excuse, chief)."
+    echo "If still not working, open a github issue!"
+    echo
+    exit 1
+else
+    echo ">>> ✅ Nosflare KVdb id : $nosflare_cf_kv_id"
+fi
 #exit
 echo
 echolor "Updating wrangler.toml file with given ENV variables... "
 sed -i 's/"KV_ID"/"'"$nosflare_cf_kv_id"'"/g' $path_wrangler_toml
 sed -i 's/"FULL_DOMAIN"/"'"$relayURL"'"/g' $path_wrangler_toml
 sed -i 's/"DOMAIN"/"'"$relayDOMAIN"'"/g' $path_wrangler_toml
+sed -i 's/"DATE"/"'"$today"'"/g' $path_wrangler_toml
 echo ">>> Done ✅"
 echo
 echolor "Deploying your Nosflare Nostr relay to Cloudflare ..."
