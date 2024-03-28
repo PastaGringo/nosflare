@@ -1,5 +1,7 @@
 # NosflareDeploy
 
+https://github.com/PastaGringo/nosflare/assets/16828964/fb476a92-6458-4a76-9216-9451039ac886
+
 BETA Simple script to deploy the Nosflare serverless Nostr relay to Cloudflare Worker.  
 Still is still in development and may be integrated to Nosflare repo when going to Production.
 
