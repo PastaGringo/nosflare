@@ -8,7 +8,7 @@ Will be useful to test the upgrade for the next Nosflare release.
 
 ## How to use
 
-### Downlaod and make the script executable
+### Download and make the script executable
 ```
 wget https://raw.githubusercontent.com/PastaGringo/nosflare/main/DeployNosflare.sh
 chmod +x ./DeployNosflare.sh
