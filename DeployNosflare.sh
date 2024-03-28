@@ -63,6 +63,28 @@ echo "/_/ |_/\____/____/_/ /_/\__,_/_/   \___/_____/\___/ .___/_/\____/\__, /  "
 echo "                                                 /_/            /____/   ";
 echo "-------------------------- NosflareDeploy v1.0 ---------------------------"
 echo
+echolor "Checking if basic depedencies are available ..."
+echo
+echolor "Checking git ..."
+if command -v git &> /dev/null; then
+    echo "git is installed ✅"
+    echo
+else
+    echo "git is not installed ❌ Please install git and run the script again."
+    echo
+    exit 1
+fi
+echolor "Checking npm ..."
+if command -v npm &> /dev/null; then
+    echo "npm is installed ✅"
+else
+    echo "npm is not installed ❌ Please install npm and run the script again."
+    echo
+    exit 1
+fi
+echo
+echolor "Basic depedencies satisfied. Starting the script ..."
+echo
 echo "Current dir: $pwd"
 if [[ $hide_whoami_infos -eq 1 ]]; then
     echo "Hide my infos: enabled"
