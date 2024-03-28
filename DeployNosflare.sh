@@ -5,6 +5,7 @@
 # Use template "Edit Cloudflare Workers" or create a custom one for workers
 CLOUDFLARE_API_TOKEN=""
 relayInfo_name=""
+# Full domain of the relay. Ex: relay.domain.tld. You need to have the domain.tld zone available in your Cloudflare domain list.
 relayURL=""
 relayInfo_description=""
 #pubkey hex format, you can use damus convertor to convert your npub to hex : https://damus.io/key/
