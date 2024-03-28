@@ -69,13 +69,18 @@ hide_whoami_infos=0
 nano ./DeployNosflare.sh
 ```
 
-### Upgrade your Nosflare relay with the script
-UNTESTED YET ⚠️ Update the variable nosflare_remote_gh_repo to the official Nosflare github repo:
+### Upgrade your Nosflare relay with the script 
+BUG ⚠️ please see known bug below
+
+Update the variable nosflare_remote_gh_repo to the official Nosflare github repo:
 ```
 nosflare_remote_gh_repo="https://github.com/Spl0itable/nosflare"
 ```
 
 Don't hesitate to open new issues if you find some bugs into the script ⚡
+
+### Known bug
+- You can't update your Nosflare relay by switching from this relay to https://github.com/Spl0itable/nosflare. You have to delete your Cloudflare Worker & KV and ./nosflare folder (everything basically) before starting the script with the new Github repo https://github.com/Spl0itable/nosflare. As the script git pull the local cloned repo, it will always clone this repo and not the new one.
 
 # Nosflare
 
