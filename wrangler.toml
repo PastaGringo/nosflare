@@ -1,4 +1,4 @@
-compatibility_date = "2024-03-27"
+compatibility_date = "DATE"
 name = "nosflare"
 workers_dev = false
 main = "dist/worker.js"
